@@ -13,7 +13,7 @@
 
     # Apache
     - name: "{{ hostname }} | Create Apache vhost in /etc/apache2/sites-available"
-      template: "src=../../roles/common/templates/apache_vhost.j2 dest=/etc/apache2/sites-available/{{ hostname }}"
+      template: "src=./templates/apache_vhost.j2 dest=/etc/apache2/sites-available/{{ hostname }}"
       tags: apache
 
     - name: "{{ hostname }} | Enable site"

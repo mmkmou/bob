@@ -26,7 +26,7 @@
 
     # TODO: verify and correct filemode instead of 0777
     - name: "{{ project }} | Add QA pre-commit hook to project repo"
-      copy: "src=../../roles/common/files/git/pre-commit dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/.git/hooks mode=0777"
+      copy: "src=./files/git/pre-commit dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/.git/hooks mode=0777"
       tags: git
 
     # Drupal
@@ -49,7 +49,7 @@
     # NOTE: assuming all project repos now include settings.php, and rely on local.settings.php for DB connection
     # TODO: verify and correct filemode instead of 0777
     - name: "{{ project }} | Create sites/{{ drupal_site_name }}/local.settings.php"
-      template: "src=../../roles/common/templates/drupal_local.settings.php.j2 dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/sites/{{ drupal_site_name }}/local.settings.php"
+      template: "src=./templates/drupal_local.settings.php.j2 dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/sites/{{ drupal_site_name }}/local.settings.php"
       tags: drupal
 
 
