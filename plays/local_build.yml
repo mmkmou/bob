@@ -21,7 +21,7 @@
 
     # Git
     - name: "{{ project }} | Clone project repo"
-      git: "repo={{ git_remote }} dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}"
+      git: "repo={{ git_remote }} dest={{ local_workspace_path }}/{{ project }}/{{ hostname }} accept_hostkey=yes"
       tags: git
 
     # TODO: verify and correct filemode instead of 0777
