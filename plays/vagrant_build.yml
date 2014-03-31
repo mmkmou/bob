@@ -1,0 +1,48 @@
+---
+- hosts: vagrant
+  sudo: True
+
+  vars_files:
+    - common_settings.yml
+
+  tasks:
+    # Inital stuff
+    - name: "{{ Init }} | Create/verify projects directory"
+      action: "file path={{ vagrant_workspace_path }} state=directory"
+      tags: init
+
+    # Apache
+    - name: "{{ hostname }} | Create Apache vhost in /etc/apache2/sites-available"
+      template: "src=../../roles/common/templates/apache_vhost.j2 dest=/etc/apache2/sites-available/{{ hostname }}"
+      tags: apache
+
+    - name: "{{ hostname }} | Enable site"
+      action: "command a2ensite {{ hostname }}"
+      tags: apache
+
+    - name: "{{ hostname }} | Reload Apache"
+      service: name=apache2 state=reloaded
+      tags: apache
+
+    # MySQL
+
+    # If dumpfile already exists in dest, it will be overwritten if content has changed
+    - name: "MySQL | Fetch database dump"
+      get_url: "url={{ db_source }} dest={{ vagrant_workspace_path }}/{{ project }}/{{ project }}.tar.gz mode=0777"
+      when: db_fetch_source == true
+      tags: mysql
+
+    # TODO: check if state=present and state=import can be combined in 1 task
+    # TODO: if db exists, leave it be and use db_<n>. Store in var to use later on in Drupal settings.php
+    # TODO: use db_user and db_pass vars
+    - name: "MySQL | Create {{ project }} database"
+      mysql_db: "name={{ project }} state=present"
+      tags: mysql
+
+    # Supported formats for input: uncompressed .sql, .gz and .bz2
+    # TODO: use db_user and db_pass vars
+    - name: "MySQL | Import {{ project }} database"
+      mysql_db: "name={{ project }} state=import target={{ vagrant_workspace_path }}/{{ project }}/{{ project }}.tar.gz"
+      when: db_fetch_source == true
+      tags: mysql
+

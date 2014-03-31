@@ -1,0 +1,20 @@
+---
+# These settings are common to all projects
+
+# VAGRANT
+vagrant_ip: "33.33.33.15"
+
+# Location for downloads and temp files
+vagrant_workspace_path: "/home/vagrant/projects"
+
+# Location for custom installed tools
+vagrant_tools_path: "/opt/local"
+
+db_user: root
+db_pass: ""
+
+# LOCAL
+
+# Projects workspace (must be shared with Vagrant through the Vagrantfile)
+# Default: ~/projects/
+local_workspace_path: "{{ lookup('env','HOME') }}/projects"

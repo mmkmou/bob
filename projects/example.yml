@@ -1,0 +1,28 @@
+---
+
+# TODO: add local user's key to vagrant user's authorized_key.
+
+# General project settings
+project: "example"
+hostname: "{{ project }}.dev"
+drupal_site_name: "default"
+
+# Server from where to fetch DB and static files, if applicable
+source_server: "http://example.com/sources"
+
+# How to handle this project's database setup
+db_fetch_source: false
+db_source: "{{ source_server }}/{{ project }}_db.tar.gz"
+
+# How to handle this project's Drupal /files setup
+static_files_fetch_source: false
+static_files_source: "{{ source_server }}/{{ project }}_files.tar.gz"
+
+# Git settings
+git_remote: 'git@github.com:you/example.git'
+git_branch: 'master'
+git_tag: ''
+
+# empty ('') if the drupal root path starts at the repo root (like with AC)
+# otherwise probably something like 'www/'
+git_drupal_root_path : ''

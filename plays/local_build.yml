@@ -1,0 +1,57 @@
+---
+- hosts: localhost
+  sudo: True
+
+  vars_files:
+    - common_settings.yml
+
+  tasks:
+    # Init stuff
+    - name: "Init | Verify/create global projects directory"
+      action: "file path={{ local_workspace_path }} state=directory"
+      tags: init
+
+    - name: "{{ project }} | Verify/create project directory"
+      action: "file path={{ local_workspace_path }}/{{ project }} state=directory"
+      tags: init
+
+    - name: "{{ project }} | Add {{ hostname }} entry to /etc/hosts"
+      lineinfile: 'dest=/etc/hosts line="{{ vagrant_ip | string }} {{ hostname }} # Added by Ansible"'
+      tags: init
+
+    # Git
+    - name: "{{ project }} | Clone project repo"
+      git: "repo={{ git_remote }} dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}"
+      tags: git
+
+    # TODO: verify and correct filemode instead of 0777
+    - name: "{{ project }} | Add QA pre-commit hook to project repo"
+      copy: "src=../../roles/common/files/git/pre-commit dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/.git/hooks mode=0777"
+      tags: git
+
+    # Drupal
+    # TODO: verify and correct filemode instead of 0777
+    - name: "{{ project }} | Fetch static /files archive for project"
+      get_url: "url={{ static_files_source }} dest={{ vagrant_workspace_path }}/{{ project }}/ mode=0777"
+      when: static_files_fetch_source == true
+      tags: drupal
+
+    - name: "{{ project }} | Unpack static /files archive to sites/{{ drupal_site_name }}/files"
+      unarchive: "src={{ local_workspace_path }}/{{ project }}/{{ project }}_files.tar.gz dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/www/sites/{{ drupal_site_name }}/"
+      when: static_files_fetch_source == true
+      tags: drupal
+
+    # TODO: verify and correct filemode instead of 0777
+    - name: "{{ project }} | Ensure sites/{{ drupal_site_name }}/files exists and has correct permissions"
+      file: "path={{ local_workspace_path }}/{{ project }}/{{ hostname }}/{{ git_drupal_root_path }}/sites/{{ drupal_site_name }}/files mode=0777 state=directory"
+      tags: drupal
+
+    # NOTE: assuming all project repos now include settings.php, and rely on local.settings.php for DB connection
+    # TODO: verify and correct filemode instead of 0777
+    - name: "{{ project }} | Create sites/{{ drupal_site_name }}/local.settings.php"
+      template: "src=../../roles/common/templates/drupal_local.settings.php.j2 dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/sites/{{ drupal_site_name }}/local.settings.php"
+      tags: drupal
+
+
+
+
