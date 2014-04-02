@@ -1,6 +1,6 @@
 ---
 - hosts: localhost
-  sudo: True
+  sudo: no
 
   vars_files:
     - common_settings.yml
@@ -17,11 +17,12 @@
 
     - name: "{{ project }} | Add {{ hostname }} entry to /etc/hosts"
       lineinfile: 'dest=/etc/hosts line="{{ vagrant_ip | string }} {{ hostname }} # Added by Ansible"'
+      sudo: yes
       tags: init
 
     # Git
     - name: "{{ project }} | Clone project repo"
-      git: "repo={{ git_remote }} dest={{ local_workspace_path }}/{{ project }}/{{ hostname }} accept_hostkey=yes"
+      git: "repo={{ git_remote }} dest={{ local_workspace_path }}/{{ project }}/{{ hostname }} accept_hostkey=yes update=no force=no"
       tags: git
 
     # TODO: verify and correct filemode instead of 0777
@@ -32,13 +33,13 @@
     # Drupal
     # TODO: verify and correct filemode instead of 0777
     - name: "{{ project }} | Fetch static /files archive for project"
-      get_url: "url={{ static_files_source }} dest={{ vagrant_workspace_path }}/{{ project }}/ mode=0777"
       when: static_files_fetch_source == true
+      get_url: "url={{ static_files_source }} dest={{ vagrant_workspace_path }}/{{ project }}/ mode=0777"
       tags: drupal
 
     - name: "{{ project }} | Unpack static /files archive to sites/{{ drupal_site_name }}/files"
-      unarchive: "src={{ local_workspace_path }}/{{ project }}/{{ project }}_files.tar.gz dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/www/sites/{{ drupal_site_name }}/"
       when: static_files_fetch_source == true
+      unarchive: "src={{ local_workspace_path }}/{{ project }}/{{ project }}_files.tar.gz dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/www/sites/{{ drupal_site_name }}/"
       tags: drupal
 
     # TODO: verify and correct filemode instead of 0777
@@ -49,9 +50,13 @@
     # NOTE: assuming all project repos now include settings.php, and rely on local.settings.php for DB connection
     # TODO: verify and correct filemode instead of 0777
     - name: "{{ project }} | Create sites/{{ drupal_site_name }}/local.settings.php"
-      template: "src=./templates/drupal_local.settings.php.j2 dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/sites/{{ drupal_site_name }}/local.settings.php"
+      template: "src=./templates/drupal_local.settings.php.j2 dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/sites/{{ drupal_site_name }}/local.settings.php mode=0777"
       tags: drupal
 
+    # # Post-install tasks
+    # - name: "{{ project }} | Make sure the project's directory is owned by the host user rather than root."
+    #   file: "path={{ local_workspace_path }}/{{ project }}/{{ hostname }} owner=xxx recurse=yes"
+    #   tags: postinstall
 
 
 
