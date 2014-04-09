@@ -1,50 +1,54 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import argparse, sys
+import argparse
+import sys
 from subprocess import call
 
+
 def build(args):
-	if args.target not in (None, 'local', 'vagrant'):
-		print "ERROR: if specified, --target must be either be 'local' or 'vagrant'."
-		sys.exit(1)
-	
-	project_vars = "--extra-vars=@projects/{0}.yml".format(args.project)
+    if args.target not in (None, 'local', 'vagrant'):
+        print "ERROR: if specified, --target must be either be 'local' or 'vagrant'."
+        sys.exit(1)
 
-	if args.target in (None, 'local'):
-		# run playbook locally
-		playbook = "plays/local_build.yml"
-		inventory = "--inventory=plays/local_inventory"
-		call(["ansible-playbook", playbook, inventory,  project_vars, "--ask-sudo-pass"])
+    project_vars = "--extra-vars=@projects/{0}.yml".format(args.project)
 
-	if args.target in (None, 'vagrant'):
-		# run playbook on vagrant
-		playbook = "plays/vagrant_build.yml"
-		inventory = "--inventory=plays/vagrant_inventory"
-		call(["ansible-playbook", playbook, inventory,  project_vars])
+    if args.target in (None, 'local'):
+        # run playbook locally
+        playbook = "plays/local_build.yml"
+        inventory = "--inventory=plays/local_inventory"
+        call(["ansible-playbook", playbook, inventory,  project_vars, "--ask-sudo-pass"])
 
-	return
+    if args.target in (None, 'vagrant'):
+        # run playbook on vagrant
+        playbook = "plays/vagrant_build.yml"
+        inventory = "--inventory=plays/vagrant_inventory"
+        call(["ansible-playbook", playbook, inventory,  project_vars])
+
+    return
+
 
 def destroy(args):
-	# TODO: implement.
-	return
+    # TODO: implement.
+    return
 
 if __name__ == '__main__':
-	# Set up main arg parser
-	parser = argparse.ArgumentParser(description='Bob builds or destroys projects. Be nice to him.')
+    # Set up main arg parser
+    desc = 'Bob builds or destroys projects. Be nice to him.'
+    parser = argparse.ArgumentParser(description=desc)
 
-	# Tell the parser that there will be subparsers
-	subparsers = parser.add_subparsers(help="The available commands.")
+    # Tell the parser that there will be subparsers
+    subparsers = parser.add_subparsers(help="The available commands.")
 
-	# Define the 'build' subparser 
-	parser_build = subparsers.add_parser('build')
-	parser_build.add_argument('project', help='The name/identifier of the project to build.')
-	parser_build.add_argument('--target', help='Target env (local|vagrant). If not set, project will be built on both environments.')
-	parser_build.set_defaults(func=build) 
+    # Define the 'build' subparser
+    parser_build = subparsers.add_parser('build')
+    parser_build.add_argument('project', help='The name/identifier of the project to build.')
+    parser_build.add_argument('--target', help='Target env (local|vagrant). If not set, project will be built on both environments.')
+    parser_build.set_defaults(func=build)
 
-	# Define the 'destroy' subparser
-	# TODO: implement.
+    # Define the 'destroy' subparser
+    # TODO: implement.
 
-	# Magic
-	args = parser.parse_args()
-	args.func(args)
+    # Magic
+    args = parser.parse_args()
+    args.func(args)
