@@ -22,8 +22,6 @@ def build(args):
         except OSError as e:
             print "Oops! Something wrong with ansible-playbook"
             print "ERROR %d: %s" % (e.errno, e.strerror)
-            # print e.filename
-            # print e.strerror
             sys.exit(1)
 
     if args.target in (None, 'vagrant'):
