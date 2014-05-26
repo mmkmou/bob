@@ -17,13 +17,25 @@ def build(args):
         # run playbook locally
         playbook = "plays/local_build.yml"
         inventory = "--inventory=plays/local_inventory"
-        call(["ansible-playbook", playbook, inventory,  project_vars, "--ask-sudo-pass"])
+        try:
+            call(["ansible-playbook", playbook, inventory,  project_vars, "--ask-sudo-pass"])
+        except OSError as e:
+            print "Oops! Something wrong with ansible-playbook"
+            print "ERROR %d: %s" % (e.errno, e.strerror)
+            # print e.filename
+            # print e.strerror
+            sys.exit(1)
 
     if args.target in (None, 'vagrant'):
         # run playbook on vagrant
         playbook = "plays/vagrant_build.yml"
         inventory = "--inventory=plays/vagrant_inventory"
-        call(["ansible-playbook", playbook, inventory,  project_vars])
+        try:
+            call(["ansible-playbook", playbook, inventory,  project_vars])
+        except OSError as e:
+            print "Oops! Something wrong with ansible-playbook"
+            print "ERROR %d: %s" % (e.errno, e.strerror)
+            sys.exit(1)
 
     return
 
