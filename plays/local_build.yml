@@ -50,7 +50,7 @@
     # NOTE: assuming all project repos now include settings.php, and rely on local.settings.php for DB connection
     # TODO: verify and correct filemode instead of 0777
     - name: "{{ project }} | Create sites/{{ drupal_site_name }}/local.settings.php"
-      template: "src=./templates/drupal_local.settings.php.j2 dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/sites/{{ drupal_site_name }}/local.settings.php mode=0777"
+      template: "src=./templates/drupal_local.settings.php.j2 dest={{ local_workspace_path }}/{{ project }}/{{ hostname }}/{{ git_drupal_root_path }}/sites/{{ drupal_site_name }}/local.settings.php mode=0777"
       tags: drupal
 
     # # Post-install tasks
