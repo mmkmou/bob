@@ -1,0 +1,3 @@
+# Ignore all file on projects folders except project sample
+projects/*
+!projects/example.yml
